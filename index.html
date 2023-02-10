@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Тектонические разломы Алматы</title>
+        <meta http-equiv='Content-Type' content='text/html; charset=utf-8'/>
+        <style type='text/css'>body{margin:0;padding:0;overflow:hidden;font-family:'Segoe UI',Helvetica,Arial,Sans-Serif}</style>
+    </head>
+    <body>
+        <div id='printoutPanel'></div>
+
+        <div id='myMap' style='width: 100vw; height: 100vh;'></div>
+        <script type='text/javascript'>
+            function loadMapScenario() {
+                var map = new Microsoft.Maps.Map(document.getElementById('myMap'), {
+                    center: new Microsoft.Maps.Location(43.242269, 76.906434),
+                    zoom: 13
+                });
+                var img;
+                function TopographicOverlay(bounds, image) {
+                    this.bounds = bounds;
+                    this.image = image;
+                }
+                TopographicOverlay.prototype = new Microsoft.Maps.CustomOverlay();
+                TopographicOverlay.prototype.onAdd = function () {
+                    img = document.createElement('img');
+                    img.src = this.image;
+                    img.id = 'topographicOverlay';
+                    img.style.width = '100%';
+                    img.style.height = '100%';
+                    img.style.position = 'absolute';
+                    this.setHtmlElement(img);
+                };
+                TopographicOverlay.prototype.onLoad = function () {
+                    repositionOverlay();
+                    Microsoft.Maps.Events.addHandler(map, 'viewchange', function () {
+                        repositionOverlay();
+                    });
+                };
+                var bounds = Microsoft.Maps.LocationRect.fromCorners(new Microsoft.Maps.Location(43.483531, 76.786553), new Microsoft.Maps.Location(43.083981, 77.175122));
+                var imageSrc = './overlay.png';
+                var overlay = new TopographicOverlay(bounds, imageSrc);
+                map.layers.insert(overlay);
+                function repositionOverlay() {
+                    var topLeft = map.tryLocationToPixel(bounds.getNorthwest(), Microsoft.Maps.PixelReference.control);
+                    var bottomRight = map.tryLocationToPixel(bounds.getSoutheast(), Microsoft.Maps.PixelReference.control);
+                    if (topLeft && bottomRight) {
+                        img.style.left = topLeft.x + 'px';
+                        img.style.top = topLeft.y + 'px';
+                        img.style.width = (bottomRight.x - topLeft.x) + 'px';
+                        img.style.height = (bottomRight.y - topLeft.y) + 'px';
+                    }
+                }
+            }
+        </script>
+        <script type='text/javascript' src='https://www.bing.com/api/maps/mapcontrol?key=Ak5bhtL0S5murwm-Ke97gi8AG3dBrVxIyZ16dg59FvLT3i0tGnsmtkgqQ097maUo&callback=loadMapScenario' async defer></script>
+    </body>
+</html>
